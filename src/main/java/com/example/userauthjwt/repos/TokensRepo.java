@@ -1,6 +1,6 @@
 package com.example.userauthjwt.repos;
 
-import com.example.userauthjwt.models.Tokens;
+import com.example.userauthjwt.models.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,11 +8,11 @@ import java.util.Date;
 import java.util.Optional;
 
 @Repository
-public interface TokensRepo extends JpaRepository<Tokens,Long> {
+public interface TokensRepo extends JpaRepository<Token,Long> {
 
-    Tokens save(Tokens token);
+    Token save(Token token);
 
-    Optional<Tokens> findByValueAndDeletedEquals(String value, boolean isDeleted);
+    Optional<Token> findByValueAndDeletedEquals(String value, boolean isDeleted);
 
-    Optional<Tokens> findByValueAndDeletedEqualsAndExpiryAtGreaterThan(String value, boolean isDeleted, Date expiryGreaterThan);
+    Optional<Token> findByValueAndDeletedEqualsAndExpiryAtGreaterThan(String value, boolean isDeleted, Date expiryGreaterThan);
 }

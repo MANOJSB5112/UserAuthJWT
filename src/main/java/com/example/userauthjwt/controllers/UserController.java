@@ -1,19 +1,14 @@
 package com.example.userauthjwt.controllers;
 
-import com.example.userauthjwt.dtos.LoginDto;
-import com.example.userauthjwt.dtos.LogoutDto;
-import com.example.userauthjwt.dtos.Signupdto;
-import com.example.userauthjwt.dtos.TokenDto;
-import com.example.userauthjwt.models.Tokens;
+import com.example.userauthjwt.dtos.*;
+import com.example.userauthjwt.models.Token;
 import com.example.userauthjwt.services.UserService;
+import io.micrometer.common.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -44,10 +39,10 @@ public class UserController {
         String email=loginDto.getEmail();
         String password=loginDto.getPassword();
         try {
-            Optional<Tokens> tokens= Optional.ofNullable(userService.login(email, password));
+            Optional<Token> tokens= Optional.ofNullable(userService.login(email, password));
 
             if (tokens.isPresent()) {
-               Tokens tk=tokens.get();
+               Token tk=tokens.get();
                 TokenDto tokenDto=new TokenDto();
                 tokenDto.setUser(tk.getUser());
                 tokenDto.setValue(tk.getValue());
@@ -67,5 +62,10 @@ public class UserController {
      {
              return userService.logout(request.getToken());
      }
+
+    @PostMapping("/validate/{token}")
+    public UserDto validateToken(@PathVariable("token") @NonNull String token) {
+        return UserDto.from(userService.validateToken(token));
+    }
 
 }

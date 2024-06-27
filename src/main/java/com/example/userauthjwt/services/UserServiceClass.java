@@ -1,6 +1,6 @@
 package com.example.userauthjwt.services;
 
-import com.example.userauthjwt.models.Tokens;
+import com.example.userauthjwt.models.Token;
 import com.example.userauthjwt.models.User;
 import com.example.userauthjwt.repos.TokensRepo;
 import com.example.userauthjwt.repos.UserRepo;
@@ -47,7 +47,7 @@ public class UserServiceClass implements UserService {
     }
 
     @Override
-    public Tokens login(String email, String password) throws Exception {
+    public Token login(String email, String password) throws Exception {
         Optional<User> savedUser=userRepo.findByEmail(email);
         if(savedUser.isPresent())
         {
@@ -61,7 +61,7 @@ public class UserServiceClass implements UserService {
 
                 // Convert LocalDate to Date
                 Date expiryDate = Date.from(thirtyDaysLater.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                Tokens token =new Tokens();
+                Token token =new Token();
                 token.setUser(user);
                 token.setExpiryAt(expiryDate);
                 token.setValue(RandomStringUtils.randomAlphanumeric(128));
@@ -77,13 +77,23 @@ public class UserServiceClass implements UserService {
 
     @Override
     public String logout(String tk) {
-        Optional<Tokens> tokens=tokensRepo.findByValueAndDeletedEquals(tk,false);
+        Optional<Token> tokens=tokensRepo.findByValueAndDeletedEquals(tk,false);
         if(tokens.isPresent())
         {
-            Tokens tk1=tokens.get();
+            Token tk1=tokens.get();
             tk1.setDeleted(true);
             tokensRepo.save(tk1);
         }
         return "Your are successfully Logged out";
+    }
+    public User validateToken(String token) {
+        Optional<Token> tkn = tokensRepo.
+                findByValueAndDeletedEqualsAndExpiryAtGreaterThan(token, false, new Date());
+
+        if (tkn.isEmpty()) {
+            return null;
+        }
+
+        return tkn.get().getUser();
     }
 }
