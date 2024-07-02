@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @Service
-public class UserServiceClass implements UserService {
+public class UserServiceClass implements UserService{
 
    BCryptPasswordEncoder passwordEncoder;
     UserRepo userRepo;
