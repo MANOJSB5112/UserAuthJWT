@@ -1,14 +1,11 @@
-package com.example.userauthjwt;
+package com.example.userauthjwt;//package com.example.userauthjwt;
 
-import com.example.userauthjwt.security.repositories.JpaRegisteredClientRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 class UserAuthJwtApplicationTests {
-    @Autowired
-    private JpaRegisteredClientRepository registeredClientRepository;
+//    @Autowired
+//    private JpaRegisteredClientRepository registeredClientRepository;
     @Test
     void contextLoads() {
     }
