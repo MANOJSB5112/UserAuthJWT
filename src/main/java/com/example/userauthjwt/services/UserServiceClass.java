@@ -1,10 +1,13 @@
 package com.example.userauthjwt.services;
 
+import com.example.userauthjwt.dtos.SendEmailDto;
 import com.example.userauthjwt.models.Token;
 import com.example.userauthjwt.models.User;
 import com.example.userauthjwt.repos.TokensRepo;
 import com.example.userauthjwt.repos.UserRepo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +22,17 @@ public class UserServiceClass implements UserService{
 
    BCryptPasswordEncoder passwordEncoder;
     UserRepo userRepo;
-    TokensRepo tokensRepo;
-    UserServiceClass(UserRepo userRepo,BCryptPasswordEncoder bCryptPasswordEncoder,TokensRepo tokensRepo)
+   TokensRepo tokensRepo;
+
+    KafkaTemplate<String,String> kafkaTemplate;
+    private ObjectMapper objectMapper;
+    UserServiceClass(UserRepo userRepo,BCryptPasswordEncoder bCryptPasswordEncoder,TokensRepo tokensRepo,KafkaTemplate<String,String> kafkaTemplate,ObjectMapper objectMapper)
     {
         this.userRepo=userRepo;
         this.passwordEncoder=bCryptPasswordEncoder;
         this.tokensRepo=tokensRepo;
+        this.kafkaTemplate=kafkaTemplate;
+        this.objectMapper=objectMapper;
 
     }
 
@@ -43,7 +51,13 @@ public class UserServiceClass implements UserService{
           {
               userRepo.save(u);
           }
+        SendEmailDto sendEmailDto=new SendEmailDto();
+          sendEmailDto.setTo(email);
+          sendEmailDto.setFrom("manojsb5112@gmail.com");
+          sendEmailDto.setSubject(" Welcome to ZStore ");
+          sendEmailDto.setBody("Thanks for Signing up ! Hope you will have a great shopping experience ! - Team ZStore");
 
+          kafkaTemplate.send("sendEmail", objectMapper.writeValueAsString(sendEmailDto));
     }
 
     @Override
