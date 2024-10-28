@@ -9,4 +9,5 @@ public class Signupdto {
     private String name;
     private String email;
     private String password;
+    private String phoneNumber;
 }

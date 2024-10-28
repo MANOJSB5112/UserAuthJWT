@@ -1,4 +1,4 @@
-package com.example.userauthjwt.dtos;
+package com.example.userauthjwt.Kafka.dtos;
 
 import lombok.Getter;
 import lombok.Setter;

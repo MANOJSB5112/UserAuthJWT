@@ -1,12 +1,12 @@
 package com.example.userauthjwt.services;
 
-import com.example.userauthjwt.dtos.SendEmailDto;
 import com.example.userauthjwt.models.Token;
 import com.example.userauthjwt.models.User;
 import com.example.userauthjwt.repos.TokensRepo;
 import com.example.userauthjwt.repos.UserRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,13 +20,15 @@ import java.util.Optional;
 @Service
 public class UserServiceClass implements UserService{
 
-   BCryptPasswordEncoder passwordEncoder;
-    UserRepo userRepo;
-   TokensRepo tokensRepo;
+   private BCryptPasswordEncoder passwordEncoder;
+    private UserRepo userRepo;
+    private TokensRepo tokensRepo;
 
-    KafkaTemplate<String,String> kafkaTemplate;
+    private KafkaTemplate<String,String> kafkaTemplate;
     private ObjectMapper objectMapper;
-    UserServiceClass(UserRepo userRepo,BCryptPasswordEncoder bCryptPasswordEncoder,TokensRepo tokensRepo,KafkaTemplate<String,String> kafkaTemplate,ObjectMapper objectMapper)
+
+    @Autowired
+    public UserServiceClass(UserRepo userRepo,BCryptPasswordEncoder bCryptPasswordEncoder,TokensRepo tokensRepo,KafkaTemplate<String,String> kafkaTemplate,ObjectMapper objectMapper)
     {
         this.userRepo=userRepo;
         this.passwordEncoder=bCryptPasswordEncoder;
@@ -36,28 +38,28 @@ public class UserServiceClass implements UserService{
 
     }
 
-    public void signUp(String name,String email,String password) throws Exception {
-          User u=new User();
-          u.setName(name);
-          u.setEmail(email);
-          u.setHashedPassword(passwordEncoder.encode(password));
-
-          Optional<User> savedUser=userRepo.findByEmail(u.getEmail());
-
+    public void signUp(String name,String email,String password,String phoneNumber) throws Exception {
+          Optional<User> savedUser=userRepo.findByEmail(email);
           if(savedUser.isPresent())
           {
               throw new Exception("User with this email already present");
-          }else
-          {
-              userRepo.save(u);
           }
-        SendEmailDto sendEmailDto=new SendEmailDto();
-          sendEmailDto.setTo(email);
-          sendEmailDto.setFrom("manojsb5112@gmail.com");
-          sendEmailDto.setSubject(" Welcome to ZStore ");
-          sendEmailDto.setBody("Thanks for Signing up ! Hope you will have a great shopping experience ! - Team ZStore");
-
-          kafkaTemplate.send("sendEmail", objectMapper.writeValueAsString(sendEmailDto));
+        User user=new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPhoneNumber(phoneNumber);
+        user.setHashedPassword(passwordEncoder.encode(password));
+        user=userRepo.save(user);
+//        SendEmailDto sendEmailDto=new SendEmailDto();
+//          sendEmailDto.setTo(email);
+//          sendEmailDto.setFrom("manojsb5112@gmail.com");
+//          sendEmailDto.setSubject(" Welcome to ZStore ");
+//          sendEmailDto.setBody("""
+//          Thanks for Signing up !
+//          Hope you will have a great shopping experience ! - Team ZStore
+//          """);
+//
+//          kafkaTemplate.send("sendEmail", objectMapper.writeValueAsString(sendEmailDto));
     }
 
     @Override

@@ -30,7 +30,8 @@ public class UserController {
         String name= request.getName();
         String email=request.getEmail();
         String password=request.getPassword();
-        userService.signUp(name,email,password);
+        String phoneNumber=request.getPhoneNumber();
+        userService.signUp(name,email,password,phoneNumber);
         return ResponseEntity.ok("User signed up successfully");
     }
 
