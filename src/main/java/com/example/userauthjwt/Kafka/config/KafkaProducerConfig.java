@@ -1,4 +1,4 @@
-package com.example.userauthjwt.config;
+package com.example.userauthjwt.Kafka.config;
 
 //import com.fasterxml.jackson.databind.ser.std.StringSerializer;
 
