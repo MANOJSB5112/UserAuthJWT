@@ -1,10 +1,12 @@
 package com.example.userauthjwt.services;
 
-import com.example.userauthjwt.Kafka.service.KafkaService;
+import com.example.userauthjwt.ExceptionPackage.UserAlreadyExistException;
+import com.example.userauthjwt.NewUserEventPackage.ActionsUponUserSignUp;
 import com.example.userauthjwt.models.Token;
 import com.example.userauthjwt.models.User;
 import com.example.userauthjwt.repos.TokensRepo;
 import com.example.userauthjwt.repos.UserRepo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,35 +24,35 @@ public class UserServiceClass implements UserService{
    private BCryptPasswordEncoder passwordEncoder;
     private UserRepo userRepo;
     private TokensRepo tokensRepo;
-    private KafkaService kafkaService;
+    private ActionsUponUserSignUp actionsUponSignUp;
 
 
 
     @Autowired
     public UserServiceClass(UserRepo userRepo,BCryptPasswordEncoder bCryptPasswordEncoder,TokensRepo tokensRepo,
-                            KafkaService kafkaService)
+                            ActionsUponUserSignUp actionsUponSignUp)
     {
         this.userRepo=userRepo;
         this.passwordEncoder=bCryptPasswordEncoder;
         this.tokensRepo=tokensRepo;
-        this.kafkaService=kafkaService;
-
-
+        this.actionsUponSignUp=actionsUponSignUp;
     }
 
-    public void signUp(String name,String email,String password,String phoneNumber) throws Exception {
-          Optional<User> savedUser=userRepo.findByEmail(email);
-          if(savedUser.isPresent())
-          {
-              throw new Exception("User with this email already present");
-          }
+    public User signUp(String name,String email,String password,String phoneNumber) throws UserAlreadyExistException, JsonProcessingException {
+       Optional<User> savedUser=userRepo.findByEmail(email);
+       if(savedUser.isPresent())
+       {
+         throw new UserAlreadyExistException("User with the email address "+email+ " already present");
+       }
         User user=new User();
         user.setName(name);
         user.setEmail(email);
         user.setPhoneNumber(phoneNumber);
         user.setHashedPassword(passwordEncoder.encode(password));
         user=userRepo.save(user);
-        kafkaService.actionsUponSignUp(user);
+        actionsUponSignUp.notifyUserUponSignUp(user);
+        actionsUponSignUp.createUserInInventoryService(user);
+        return user;
     }
 
     @Override

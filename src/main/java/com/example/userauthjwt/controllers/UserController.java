@@ -1,8 +1,12 @@
 package com.example.userauthjwt.controllers;
 
+import com.example.userauthjwt.ExceptionPackage.UserAlreadyExistException;
+import com.example.userauthjwt.dtos.ResponseStatus;
 import com.example.userauthjwt.dtos.*;
 import com.example.userauthjwt.models.Token;
+import com.example.userauthjwt.models.User;
 import com.example.userauthjwt.services.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.micrometer.common.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,13 +30,16 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody Signupdto request) throws Exception {
+    public ResponseEntity<SignupUserResponseDto> signUp(@RequestBody SignupUserRequestDto request) throws UserAlreadyExistException, JsonProcessingException {
         String name= request.getName();
         String email=request.getEmail();
         String password=request.getPassword();
         String phoneNumber=request.getPhoneNumber();
-        userService.signUp(name,email,password,phoneNumber);
-        return ResponseEntity.ok("User signed up successfully");
+        User user=userService.signUp(name,email,password,phoneNumber);
+        SignupUserResponseDto responseDto=new SignupUserResponseDto();
+        responseDto.setUser(user);
+        responseDto.setResponseStatus(ResponseStatus.SUCCESS);
+        return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
