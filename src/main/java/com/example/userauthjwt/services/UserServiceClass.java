@@ -51,7 +51,7 @@ public class UserServiceClass implements UserService{
         user.setHashedPassword(passwordEncoder.encode(password));
         user=userRepo.save(user);
         actionsUponSignUp.notifyUserUponSignUp(user);
-        actionsUponSignUp.createUserInInventoryService(user);
+//        actionsUponSignUp.createUserInInventoryService(user);
         return user;
     }
 

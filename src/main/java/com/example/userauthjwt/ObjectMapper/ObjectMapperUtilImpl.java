@@ -18,8 +18,8 @@ public class ObjectMapperUtilImpl implements ObjectMapperUtil{
     @Override
     public String getNewUserNotificationObject(User user) throws JsonProcessingException {
         SendEmailDto sendEmailDto=new SendEmailDto();
-        sendEmailDto.setUserName(user.getName());
-        sendEmailDto.setTo(user.getEmail());
+        sendEmailDto.setName(user.getName());
+        sendEmailDto.setEmail(user.getEmail());
         return objectMapper.writeValueAsString(sendEmailDto);
     }
 
