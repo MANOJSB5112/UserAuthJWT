@@ -1,49 +1,81 @@
 package com.example.userauthjwt.services;
 
+import com.example.userauthjwt.ExceptionPackage.UserAlreadyExistException;
+import com.example.userauthjwt.NewUserEventPackage.ActionsUponUserSignUp;
+import com.example.userauthjwt.models.RoleType;
+import com.example.userauthjwt.models.Roles;
 import com.example.userauthjwt.models.Token;
 import com.example.userauthjwt.models.User;
+import com.example.userauthjwt.repos.RolesRepository;
 import com.example.userauthjwt.repos.TokensRepo;
 import com.example.userauthjwt.repos.UserRepo;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
 @Service
 public class UserServiceClass implements UserService{
 
-   BCryptPasswordEncoder passwordEncoder;
-    UserRepo userRepo;
-    TokensRepo tokensRepo;
-    UserServiceClass(UserRepo userRepo,BCryptPasswordEncoder bCryptPasswordEncoder,TokensRepo tokensRepo)
+    private BCryptPasswordEncoder passwordEncoder;
+    private UserRepo userRepo;
+    private TokensRepo tokensRepo;
+    private ActionsUponUserSignUp actionsUponSignUp;
+    private RolesRepository rolesRepository;
+
+
+
+    @Autowired
+    public UserServiceClass(UserRepo userRepo,BCryptPasswordEncoder bCryptPasswordEncoder,TokensRepo tokensRepo,
+                            ActionsUponUserSignUp actionsUponSignUp,RolesRepository rolesRepository)
     {
         this.userRepo=userRepo;
         this.passwordEncoder=bCryptPasswordEncoder;
         this.tokensRepo=tokensRepo;
-
+        this.actionsUponSignUp=actionsUponSignUp;
+        this.rolesRepository=rolesRepository;
     }
 
-    public void signUp(String name,String email,String password) throws Exception {
-          User u=new User();
-          u.setName(name);
-          u.setEmail(email);
-          u.setHashedPassword(passwordEncoder.encode(password));
-
-          Optional<User> savedUser=userRepo.findByEmail(u.getEmail());
-
-          if(savedUser.isPresent())
-          {
-              throw new Exception("User with this email already present");
-          }else
-          {
-              userRepo.save(u);
-          }
-
+    public User signUp(String name, String email, String password, String phoneNumber, RoleType roleType) throws Exception {
+       Optional<User> userOptional=userRepo.findByEmail(email);
+       Optional<Roles> rolesOptional=rolesRepository.findByRoleType(roleType);
+       if(rolesOptional.isEmpty())
+       {
+           throw new Exception("Something went wrong, no roles present with role type "+roleType);
+       }
+       Roles role=rolesOptional.get();
+       if(userOptional.isPresent() ) {
+           User savedUser = userOptional.get();
+           for (Roles userRole : savedUser.getRoles()) {
+               if (userRole.getRoleType().equals(roleType)) {
+                   throw new UserAlreadyExistException("User Account with the email address " + email + " already present as a " + roleType);
+               }
+           }
+           savedUser.getRoles().add(role);
+           savedUser=userRepo.save(savedUser);
+           actionsUponSignUp.notifyUserSignUpTopic(savedUser,roleType);
+           return savedUser;
+       }
+        User user=new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPhoneNumber(phoneNumber);
+        user.setHashedPassword(passwordEncoder.encode(password));
+        if(user.getRoles()==null)
+        {
+            user.setRoles(new ArrayList<>());
+        }
+        user.getRoles().add(role);
+        user=userRepo.save(user);
+        actionsUponSignUp.notifyUserSignUpTopic(user,roleType);
+        return user;
     }
 
     @Override
