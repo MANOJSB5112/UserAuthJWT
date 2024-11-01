@@ -23,11 +23,11 @@ public class AwsSNSServiceImpl implements AwsSNSService{
     }
 
     @Override
-    public void notifyUserUponSignUp(String emailObject) throws JsonProcessingException {
+    public void publishUserSignUpTopic(String newUserObject) throws JsonProcessingException {
         // Use the class-level userSignupTopicArn directly
         PublishRequest publishRequest = new PublishRequest()
                 .withTopicArn(userSignupTopicArn) // Use the defined ARN
-                .withMessage(emailObject)          // Message body
+                .withMessage(newUserObject)          // Message body
                 .withSubject("NewUserSignUp");     // Message subject
 
         // Publish the message to SNS
@@ -35,10 +35,5 @@ public class AwsSNSServiceImpl implements AwsSNSService{
 
         // Log the message ID returned from SNS
         System.out.println("Message sent with ID: " + publishResult.getMessageId());
-    }
-
-    @Override
-    public void createUserInInventoryService(String userCreationObject) throws JsonProcessingException {
-        
     }
 }

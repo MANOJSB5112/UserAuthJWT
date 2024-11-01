@@ -1,5 +1,6 @@
 package com.example.userauthjwt.NewUserEventPackage;
 
+import com.example.userauthjwt.models.RoleType;
 import com.example.userauthjwt.models.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,20 +8,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ActionsUponUserSignUpImpl implements ActionsUponUserSignUp{
-    private NewUserEventProcessor newUserEventProcessor;
+    private UserSignUpTopicProcessor userSignUpTopicProcessor;
 
     @Autowired
-    public ActionsUponUserSignUpImpl(NewUserEventProcessor newUserEventProcessor)
+    public ActionsUponUserSignUpImpl(UserSignUpTopicProcessor userSignUpTopicProcessor)
     {
-        this.newUserEventProcessor=newUserEventProcessor;
+        this.userSignUpTopicProcessor=userSignUpTopicProcessor;
     }
     @Override
-    public void notifyUserUponSignUp(User user) throws JsonProcessingException {
-        newUserEventProcessor.notifyUserUponSignUp(user);
-    }
-
-    @Override
-    public void createUserInInventoryService(User user) {
-
+    public void notifyUserSignUpTopic(User user, RoleType roleType) throws JsonProcessingException {
+        userSignUpTopicProcessor.notifyUserSignUpTopic(user,roleType);
     }
 }

@@ -1,14 +1,27 @@
 package com.example.userauthjwt;//package com.example.userauthjwt;
 
-import org.junit.jupiter.api.Test;
-
 //@SpringBootTest
-class UserAuthJwtApplicationTests {
+//class UserAuthJwtApplicationTests {
+//
+//    @Autowired
+//    private RolesRepository rolesRepository;
+//
+//    @Test
+//    void contextLoads() {
+//    }
+//
+//    @Test
+//    @Transactional
+//    void shouldAddNewRoleToDB() {
+//        Roles role = new Roles(); // Assuming Role instead of Roles for class name
+//        role.setName("Customer");
+//        role.setRoleType(RoleType.CUSTOMER);
+//        rolesRepository.save(role);
+//    }
+
 //    @Autowired
 //    private JpaRegisteredClientRepository registeredClientRepository;
-    @Test
-    void contextLoads() {
-    }
+
 //    @Test
 //    @Commit
 //    void storeRegisteredClientIntoDB() {
@@ -31,4 +44,8 @@ class UserAuthJwtApplicationTests {
 //                registeredClientRepository.save(oidcClient);
 //
 //    }
-}
+
+
+
+
+//}

@@ -2,6 +2,7 @@ package com.example.userauthjwt.NewUserEventPackage;
 
 import com.example.userauthjwt.ExternalLibrary.AwsSNS.Service.AwsSNSService;
 import com.example.userauthjwt.ObjectMapper.ObjectMapperUtil;
+import com.example.userauthjwt.models.RoleType;
 import com.example.userauthjwt.models.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Primary
-public class AwsSNSProcessor implements NewUserEventProcessor{
+public class AwsSNSProcessor implements UserSignUpTopicProcessor{
     private AwsSNSService awsSNSService;
     private ObjectMapperUtil objectMapperUtil;
 
@@ -23,14 +24,9 @@ public class AwsSNSProcessor implements NewUserEventProcessor{
     }
 
     @Override
-    public void notifyUserUponSignUp(User user) throws JsonProcessingException {
-        String emailObject=objectMapperUtil.getNewUserNotificationObject(user);
-        awsSNSService.notifyUserUponSignUp(emailObject);
-
-    }
-
-    @Override
-    public void createUserInInventoryService(User user) {
+    public void notifyUserSignUpTopic(User user, RoleType roleType) throws JsonProcessingException {
+        String newUserObject=objectMapperUtil.getNewUserObjectForRoleType(user,roleType);
+        awsSNSService.publishUserSignUpTopic(newUserObject);
 
     }
 }

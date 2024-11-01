@@ -14,12 +14,7 @@ public class KafkaServiceImpl implements KafkaService{
     }
 
     @Override
-    public void notifyUserUponSignUp(String emailObject) throws JsonProcessingException {
-        kafkaTemplate.send("user-signup-event", emailObject);
-    }
-
-    @Override
-    public void createUserInInventoryService(String userCreationObject) throws JsonProcessingException {
-        kafkaTemplate.send("user-signup-event", userCreationObject);
+    public void publishUserSignUpTopic(String newUserObject) throws JsonProcessingException {
+        kafkaTemplate.send("user-signup-event", newUserObject);
     }
 }

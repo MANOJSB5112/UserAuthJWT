@@ -2,12 +2,13 @@ package com.example.userauthjwt.NewUserEventPackage;
 
 import com.example.userauthjwt.ExternalLibrary.Kafka.service.KafkaService;
 import com.example.userauthjwt.ObjectMapper.ObjectMapperUtil;
+import com.example.userauthjwt.models.RoleType;
 import com.example.userauthjwt.models.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class KafkaProcessor implements NewUserEventProcessor{
+public class KafkaProcessor implements UserSignUpTopicProcessor{
     private KafkaService kafkaService;
     private ObjectMapperUtil objectMapperUtil;
 
@@ -18,15 +19,9 @@ public class KafkaProcessor implements NewUserEventProcessor{
     }
 
     @Override
-    public void notifyUserUponSignUp(User user) throws JsonProcessingException {
-        String emailObject=objectMapperUtil.getNewUserNotificationObject(user);
-        kafkaService.notifyUserUponSignUp(emailObject);
+    public void notifyUserSignUpTopic(User user, RoleType roleType) throws JsonProcessingException {
+        String newUserObject=objectMapperUtil.getNewUserObjectForRoleType(user,roleType);
+        kafkaService.publishUserSignUpTopic(newUserObject);
     }
 
-    @Override
-    public void createUserInInventoryService(User user) throws JsonProcessingException {
-        String userCreationObject=objectMapperUtil.getNewUserCreationObject(user);
-        kafkaService.createUserInInventoryService(userCreationObject);
-
-    }
 }
